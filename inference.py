@@ -27,18 +27,24 @@ import sys
 import logging as log
 from openvino.inference_engine import IENetwork, IECore
 
+CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so"
 
 class Network:
     """
-    Load and configure inference plugins for the specified target devices 
+    Load and configure inference plugins for the specified target devices
     and performs synchronous and asynchronous modes for the specified infer requests.
     """
 
     def __init__(self):
         ### TODO: Initialize any class variables desired ###
+        self.plugin = None
+        self.network = None
 
-    def load_model(self):
-        ### TODO: Load the model ###
+    def load_model(self, model, device):
+        self.plugin = IECore()
+        weights = os.path.splitext(model)[0] + ".bin"
+        self.network = IENetwork(model=model, weights=weights)
+        layers = self.plugin.query_network(self.network, device_name=device)
         ### TODO: Check for supported layers ###
         ### TODO: Add any necessary extensions ###
         ### TODO: Return the loaded inference plugin ###
