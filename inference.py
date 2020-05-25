@@ -37,7 +37,6 @@ class Network:
     """
 
     def __init__(self):
-        ### TODO: Initialize any class variables desired ###
         self.plugin = None
         self.network = None
         FORMAT = '%(asctime)-15s %(message)s'
@@ -52,13 +51,13 @@ class Network:
             # Add CPU Extension
             self.plugin.add_extension(extension_path=CPU_EXTENSION, device_name=device)
 
-        layers = self.plugin.query_network(self.network, device_name=device)
+        supported_layers = self.plugin.query_network(self.network, device_name=device)
 
-        log.debug(self.network.layers)
-        ### TODO: Check for supported layers ###
-        ### TODO: Return the loaded inference plugin ###
-        ### Note: You may need to update the function parameters. ###
-        return
+        unsupported_layers = [ l for l in self.network.layers.keys() if l not in supported_layers ]
+        if len(unsupported_layers) > 0:
+            exit(1)
+
+        return self.plugin
 
     def get_input_shape(self):
         ### TODO: Return the shape of the input layer ###
