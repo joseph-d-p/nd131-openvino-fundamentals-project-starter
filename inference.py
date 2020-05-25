@@ -27,7 +27,7 @@ import sys
 import logging as log
 from openvino.inference_engine import IENetwork, IECore
 
-CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so"
+CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension.dylib"
 LOG_FILENAME = 'debug.log'
 
 class Network:
@@ -47,9 +47,15 @@ class Network:
         self.plugin = IECore()
         weights = os.path.splitext(model)[0] + ".bin"
         self.network = IENetwork(model=model, weights=weights)
+
+        if device == "CPU":
+            # Add CPU Extension
+            self.plugin.add_extension(extension_path=CPU_EXTENSION, device_name=device)
+
         layers = self.plugin.query_network(self.network, device_name=device)
+
+        log.debug(self.network.layers)
         ### TODO: Check for supported layers ###
-        ### TODO: Add any necessary extensions ###
         ### TODO: Return the loaded inference plugin ###
         ### Note: You may need to update the function parameters. ###
         return
