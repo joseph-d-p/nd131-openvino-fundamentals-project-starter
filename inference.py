@@ -28,6 +28,7 @@ import logging as log
 from openvino.inference_engine import IENetwork, IECore
 
 CPU_EXTENSION = "/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so"
+LOG_FILENAME = 'debug.log'
 
 class Network:
     """
@@ -39,6 +40,8 @@ class Network:
         ### TODO: Initialize any class variables desired ###
         self.plugin = None
         self.network = None
+        FORMAT = '%(asctime)-15s %(message)s'
+        log.basicConfig(filename=LOG_FILENAME,level=log.DEBUG, format=FORMAT)
 
     def load_model(self, model, device):
         self.plugin = IECore()
