@@ -92,11 +92,25 @@ def infer_on_stream(args, client):
     # Load the model through `infer_network`
     plugin = infer_network.load_model(args.model, args.device)
 
-    ### TODO: Handle the input stream ###
+    capture = cv2.VideoCapture(args.input)
+    capture.open(args.input)
 
-    ### TODO: Loop until stream is over ###
+    width = capture.get(3)
+    height = capture.get(4)
+
+    output = cv2.VideoWriter('output.mp4',
+                             cv2.VideoWriter_fourcc('M','J','P','G'),
+                             30, # fps
+                             (100, 100))
+
+    cv2.namedWindow('Source', cv2.WINDOW_AUTOSIZE)
+    while capture.isOpened():
 
         ### TODO: Read from the video capture ###
+        rc, frame = capture.read()
+
+        if not rc:
+            break
 
         ### TODO: Pre-process the image as needed ###
 
@@ -117,6 +131,14 @@ def infer_on_stream(args, client):
 
         ### TODO: Write an output image if `single_image_mode` ###
 
+        # TODO: remove once video is streamed via FFMPEG
+        cv2.imshow('Source', frame)
+        if cv2.waitKey(0) == 10:
+            break
+
+    output.release()
+    capture.release()
+    cv2.destroyAllWindows()
 
 def main():
     """
