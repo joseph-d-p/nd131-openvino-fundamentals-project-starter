@@ -127,7 +127,8 @@ def infer_on_stream(args, client):
             ### Topic "person": keys of "count" and "total" ###
             ### Topic "person/duration": key of "duration" ###
 
-        ### TODO: Send the frame to the FFMPEG server ###
+        sys.stdout.buffer.write(frame)
+        sys.stdout.flush()
 
         if DEBUG:
             output.write(frame)
