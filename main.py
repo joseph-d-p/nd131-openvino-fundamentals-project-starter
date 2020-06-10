@@ -39,6 +39,7 @@ IPADDRESS = socket.gethostbyname(HOSTNAME)
 MQTT_HOST = IPADDRESS
 MQTT_PORT = 3001
 MQTT_KEEPALIVE_INTERVAL = 60
+DEBUG = True# False
 
 
 def build_argparser():
@@ -95,18 +96,17 @@ def infer_on_stream(args, client):
     capture = cv2.VideoCapture(args.input)
     capture.open(args.input)
 
-    width = capture.get(3)
-    height = capture.get(4)
+    width = int(capture.get(3))
+    height = int(capture.get(4))
 
-    output = cv2.VideoWriter('output.mp4',
+    if DEBUG:
+        output = cv2.VideoWriter('output.mp4',
                              cv2.VideoWriter_fourcc('M','J','P','G'),
-                             30, # fps
-                             (100, 100))
+                             24, # fps
+                             frameSize=(width, height))
 
-    cv2.namedWindow('Source', cv2.WINDOW_AUTOSIZE)
     while capture.isOpened():
 
-        ### TODO: Read from the video capture ###
         rc, frame = capture.read()
 
         if not rc:
@@ -129,14 +129,14 @@ def infer_on_stream(args, client):
 
         ### TODO: Send the frame to the FFMPEG server ###
 
+        if DEBUG:
+            output.write(frame)
+
         ### TODO: Write an output image if `single_image_mode` ###
 
-        # TODO: remove once video is streamed via FFMPEG
-        cv2.imshow('Source', frame)
-        if cv2.waitKey(0) == 10:
-            break
+    if DEBUG:
+        output.release()
 
-    output.release()
     capture.release()
     cv2.destroyAllWindows()
 
