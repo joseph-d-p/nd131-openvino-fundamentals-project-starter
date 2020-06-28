@@ -29,6 +29,7 @@ import cv2
 
 import logging as log
 import paho.mqtt.client as mqtt
+import numpy as np
 
 from argparse import ArgumentParser
 from inference import Network
@@ -76,6 +77,16 @@ def connect_mqtt():
     return client
 
 
+def preprocess(frame, input_shape):
+    width, height = input_shape
+    output = np.copy(frame)
+    output = cv2.resize(output, (width, height))
+    output = output.transpose((2, 0, 1))
+    output = output[np.newaxis, :, :, :]
+
+    return output
+
+
 def infer_on_stream(args, client):
     """
     Initialize the inference network, stream video to network,
@@ -111,7 +122,7 @@ def infer_on_stream(args, client):
         if not rc:
             break
 
-        ### TODO: Pre-process the image as needed ###
+        preprocess(frame, (width, height))
 
         ### TODO: Start asynchronous inference for specified request ###
 
