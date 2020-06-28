@@ -39,6 +39,7 @@ class Network:
     def __init__(self):
         self.plugin = None
         self.network = None
+        self.input_blob = None
         FORMAT = '%(asctime)-15s %(message)s'
         log.basicConfig(filename=LOG_FILENAME,level=log.DEBUG, format=FORMAT)
 
@@ -57,11 +58,12 @@ class Network:
         if len(unsupported_layers) > 0:
             exit(1)
 
+        self.input_blob = next(iter(self.network.inputs))
+
         return self.plugin
 
     def get_input_shape(self):
-        ### TODO: Return the shape of the input layer ###
-        return
+        return self.network.inputs[self.input_blob].shape
 
     def exec_net(self):
         ### TODO: Start an asynchronous request ###

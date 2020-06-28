@@ -92,18 +92,17 @@ def infer_on_stream(args, client):
 
     # Load the model through `infer_network`
     plugin = infer_network.load_model(args.model, args.device)
+    _, _, height, width = infer_network.get_input_shape()
 
     capture = cv2.VideoCapture(args.input)
     capture.open(args.input)
-
-    width = int(capture.get(3))
-    height = int(capture.get(4))
 
     if DEBUG:
         output = cv2.VideoWriter('output.mp4',
                              cv2.VideoWriter_fourcc('M','J','P','G'),
                              24, # fps
                              frameSize=(width, height))
+
 
     while capture.isOpened():
 
