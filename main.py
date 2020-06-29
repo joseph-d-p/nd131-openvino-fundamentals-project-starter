@@ -125,10 +125,9 @@ def infer_on_stream(args, client):
         preprocessed_frame = preprocess(frame, (width, height))
         infer_network.exec_net(preprocessed_frame)
 
-        ### TODO: Start asynchronous inference for specified request ###
+        status = infer_network.wait()
 
-        ### TODO: Wait for the result ###
-
+        if status == 0:
             ### TODO: Get the results of the inference request ###
 
             ### TODO: Extract any desired stats from the results ###
@@ -137,6 +136,7 @@ def infer_on_stream(args, client):
             ### current_count, total_count and duration to the MQTT server ###
             ### Topic "person": keys of "count" and "total" ###
             ### Topic "person/duration": key of "duration" ###
+            continue
 
         sys.stdout.buffer.write(frame)
         sys.stdout.flush()
