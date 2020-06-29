@@ -102,7 +102,7 @@ def infer_on_stream(args, client):
     prob_threshold = args.prob_threshold
 
     # Load the model through `infer_network`
-    plugin = infer_network.load_model(args.model, args.device)
+    infer_network.load_model(args.model, args.device)
     _, _, height, width = infer_network.get_input_shape()
 
     capture = cv2.VideoCapture(args.input)
@@ -122,7 +122,8 @@ def infer_on_stream(args, client):
         if not rc:
             break
 
-        preprocess(frame, (width, height))
+        preprocessed_frame = preprocess(frame, (width, height))
+        infer_network.exec_net(preprocessed_frame)
 
         ### TODO: Start asynchronous inference for specified request ###
 

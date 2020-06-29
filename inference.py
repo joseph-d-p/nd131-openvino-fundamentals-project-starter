@@ -40,6 +40,7 @@ class Network:
         self.plugin = None
         self.network = None
         self.input_blob = None
+        self.exec_network = None
         FORMAT = '%(asctime)-15s %(message)s'
         log.basicConfig(filename=LOG_FILENAME,level=log.DEBUG, format=FORMAT)
 
@@ -60,15 +61,15 @@ class Network:
 
         self.input_blob = next(iter(self.network.inputs))
 
-        return self.plugin
+        self.exec_network = self.plugin.load_network(network=self.network, device_name="CPU")
+
+        return
 
     def get_input_shape(self):
         return self.network.inputs[self.input_blob].shape
 
-    def exec_net(self):
-        ### TODO: Start an asynchronous request ###
-        ### TODO: Return any necessary information ###
-        ### Note: You may need to update the function parameters. ###
+    def exec_net(self, image):
+        self.exec_network.start_async(request_id=0, inputs={self.input_blob: image})
         return
 
     def wait(self):
