@@ -40,6 +40,7 @@ class Network:
         self.plugin = None
         self.network = None
         self.input_blob = None
+        self.output_blob = None
         self.exec_network = None
         FORMAT = '%(asctime)-15s %(message)s'
         log.basicConfig(filename=LOG_FILENAME,level=log.DEBUG, format=FORMAT)
@@ -60,6 +61,7 @@ class Network:
             exit(1)
 
         self.input_blob = next(iter(self.network.inputs))
+        self.output_blob = next(iter(self.network.outputs))
 
         self.exec_network = self.plugin.load_network(network=self.network, device_name="CPU")
 
@@ -77,6 +79,4 @@ class Network:
         return status
 
     def get_output(self):
-        ### TODO: Extract and return the output results
-        ### Note: You may need to update the function parameters. ###
-        return
+        return self.exec_network.requests[0].outputs[self.output_blob]

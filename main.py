@@ -86,6 +86,17 @@ def preprocess(frame, input_shape):
 
     return output
 
+def draw_bounding_box(frame, result, width, height):
+    boxes = result[0][0]
+    highest_conf = sorted(boxes, key=lambda p: p[2]).pop()
+
+    if highest_conf[2] > 0.80:
+        image_id, label, conf, x_min, y_min, x_max, y_max = highest_conf
+        pt1 = (int(x_min * width), int(y_min * height))
+        pt2 = (int(x_max * width), int(y_max * height))
+        frame = cv2.rectangle(frame, pt1, pt2, (0, 255, 0), 3)
+
+    return frame
 
 def infer_on_stream(args, client):
     """
@@ -107,6 +118,8 @@ def infer_on_stream(args, client):
 
     capture = cv2.VideoCapture(args.input)
     capture.open(args.input)
+    frame_width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+    frame_height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
     if DEBUG:
         output = cv2.VideoWriter('output.mp4',
@@ -128,7 +141,8 @@ def infer_on_stream(args, client):
         status = infer_network.wait()
 
         if status == 0:
-            ### TODO: Get the results of the inference request ###
+            result = infer_network.get_output()
+            frame = draw_bounding_box(frame, result, frame_width, frame_height)
 
             ### TODO: Extract any desired stats from the results ###
 
@@ -136,7 +150,6 @@ def infer_on_stream(args, client):
             ### current_count, total_count and duration to the MQTT server ###
             ### Topic "person": keys of "count" and "total" ###
             ### Topic "person/duration": key of "duration" ###
-            continue
 
         sys.stdout.buffer.write(frame)
         sys.stdout.flush()
