@@ -86,14 +86,24 @@ def preprocess(frame, input_shape):
 
     return output
 
-def draw_bounding_box(frame, result, width, height):
-    boxes = result[0][0]
-    highest_conf = sorted(boxes, key=lambda p: p[2]).pop()
+# TODO: Use threshold argument
+def detect_persons(result, width, height, threshold=0.8):
+    boxes = list(filter(lambda conf: conf[2] > threshold, result[0][0]))
+    boxes = sorted(boxes, key=lambda x: x[2])
 
-    if highest_conf[2] > 0.80:
-        image_id, label, conf, x_min, y_min, x_max, y_max = highest_conf
+    persons = []
+    for box in boxes:
+        image_id, label, conf, x_min, y_min, x_max, y_max = box
         pt1 = (int(x_min * width), int(y_min * height))
         pt2 = (int(x_max * width), int(y_max * height))
+        persons.append({ 'pt1': pt1, 'pt2': pt2 })
+
+    return persons
+
+def draw_bounding_boxes(frame, persons):
+    for person in persons:
+        pt1 = person['pt1']
+        pt2 = person['pt2']
         frame = cv2.rectangle(frame, pt1, pt2, (0, 255, 0), 3)
 
     return frame
@@ -142,7 +152,8 @@ def infer_on_stream(args, client):
 
         if status == 0:
             result = infer_network.get_output()
-            frame = draw_bounding_box(frame, result, frame_width, frame_height)
+            persons = detect_persons(result, frame_width, frame_height)
+            frame = draw_bounding_boxes(frame, persons)
 
             ### TODO: Extract any desired stats from the results ###
 
