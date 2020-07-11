@@ -140,8 +140,9 @@ def infer_on_stream(args, client):
 
     capture = cv2.VideoCapture(args.input)
     capture.open(args.input)
-    frame_width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+    frame_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_rate = int(capture.get(cv2.CAP_PROP_FPS))
 
     if DEBUG:
         output = cv2.VideoWriter('output.mp4',
