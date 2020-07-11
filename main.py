@@ -108,6 +108,18 @@ def draw_bounding_boxes(frame, persons):
 
     return frame
 
+def show_inference_time(frame, time, frame_height):
+    performance = round(time * 1000, 2);
+    text = "Inference: {time} ms".format(time=performance)
+    frame = cv2.putText(img=frame,
+                        text=text,
+                        org=(30, frame_height - 30), # bottom left
+                        fontFace=cv2.FONT_HERSHEY_DUPLEX, #COMPLEX_SMALL,
+                        fontScale=0.5,
+                        color=(139, 0, 0),
+                        thickness=1);
+    return frame
+
 def infer_on_stream(args, client):
     """
     Initialize the inference network, stream video to network,
@@ -129,7 +141,7 @@ def infer_on_stream(args, client):
     capture = cv2.VideoCapture(args.input)
     capture.open(args.input)
     frame_width = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
-    frame_height = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    frame_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     if DEBUG:
         output = cv2.VideoWriter('output.mp4',
@@ -146,11 +158,14 @@ def infer_on_stream(args, client):
             break
 
         preprocessed_frame = preprocess(frame, (width, height))
+        start_time = time.time()
         infer_network.exec_net(preprocessed_frame)
+        end_time = time.time()
 
         status = infer_network.wait()
 
         if status == 0:
+            frame = show_inference_time(frame, end_time - start_time, frame_height)
             result = infer_network.get_output()
             persons = detect_persons(result, frame_width, frame_height)
             frame = draw_bounding_boxes(frame, persons)
