@@ -38,7 +38,7 @@ from inference import Network
 HOSTNAME = socket.gethostname()
 IPADDRESS = socket.gethostbyname(HOSTNAME)
 MQTT_HOST = IPADDRESS
-MQTT_PORT = 3001
+MQTT_PORT = 3002
 MQTT_KEEPALIVE_INTERVAL = 60
 DEBUG = True# False
 
@@ -71,8 +71,8 @@ def build_argparser():
 
 
 def connect_mqtt():
-    ### TODO: Connect to the MQTT client ###
-    client = None
+    client = mqtt.Client(transport="websockets")
+    client.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
 
     return client
 
@@ -162,6 +162,7 @@ def infer_on_stream(args, client):
     if DEBUG:
         output.release()
 
+    client.disconnect()
     capture.release()
     cv2.destroyAllWindows()
 
