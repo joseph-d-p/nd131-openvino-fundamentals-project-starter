@@ -87,7 +87,7 @@ def preprocess(frame, input_shape):
     return output
 
 # TODO: Use threshold argument
-def detect_persons(result, width, height, threshold=0.8):
+def detect_persons(result, width, height, threshold=0.7):
     boxes = list(filter(lambda conf: conf[2] > threshold, result[0][0]))
     boxes = sorted(boxes, key=lambda x: x[2])
 
@@ -150,7 +150,8 @@ def infer_on_stream(args, client):
                              24, # fps
                              frameSize=(width, height))
 
-
+    total_count = 0
+    samples = []
     while capture.isOpened():
 
         rc, frame = capture.read()
@@ -171,12 +172,19 @@ def infer_on_stream(args, client):
             persons = detect_persons(result, frame_width, frame_height)
             frame = draw_bounding_boxes(frame, persons)
 
-            ### TODO: Extract any desired stats from the results ###
+            samples.append(len(persons))
 
             ### TODO: Calculate and send relevant information on ###
             ### current_count, total_count and duration to the MQTT server ###
             ### Topic "person": keys of "count" and "total" ###
             ### Topic "person/duration": key of "duration" ###
+            if duration % frame_rate == 0:
+                mean = np.mean(samples)
+                count = np.ceil(mean)
+                total_count += count;
+                samples = []
+
+                client.publish("person", json.dumps({ "count": count, "total": total_count }))
 
         sys.stdout.buffer.write(frame)
         sys.stdout.flush()
