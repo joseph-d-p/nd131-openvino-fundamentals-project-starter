@@ -152,8 +152,11 @@ def infer_on_stream(args, client):
 
     total_count = 0
     samples = []
+    num_frames = 0
+    duration = 0
     while capture.isOpened():
 
+        num_frames += 1
         rc, frame = capture.read()
 
         if not rc:
@@ -174,17 +177,18 @@ def infer_on_stream(args, client):
 
             samples.append(len(persons))
 
-            ### TODO: Calculate and send relevant information on ###
-            ### current_count, total_count and duration to the MQTT server ###
-            ### Topic "person": keys of "count" and "total" ###
-            ### Topic "person/duration": key of "duration" ###
-            if duration % frame_rate == 0:
+            if num_frames % frame_rate == 0:
                 mean = np.mean(samples)
                 count = np.ceil(mean)
                 total_count += count;
                 samples = []
 
+                duration += 1
+                if count == 0:
+                   duration = 0
+
                 client.publish("person", json.dumps({ "count": count, "total": total_count }))
+                client.publish("person/duration", json.dumps({ "duration": duration }))
 
         sys.stdout.buffer.write(frame)
         sys.stdout.flush()
