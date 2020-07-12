@@ -104,7 +104,7 @@ def draw_bounding_boxes(frame, persons):
     for person in persons:
         pt1 = person['pt1']
         pt2 = person['pt2']
-        frame = cv2.rectangle(frame, pt1, pt2, (0, 255, 0), 3)
+        frame = cv2.rectangle(frame, pt1, pt2, (255, 0, 0), 1)
 
     return frame
 
