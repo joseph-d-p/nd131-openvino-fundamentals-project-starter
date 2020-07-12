@@ -86,8 +86,7 @@ def preprocess(frame, input_shape):
 
     return output
 
-# TODO: Use threshold argument
-def detect_persons(result, width, height, threshold=0.7):
+def detect_persons(result, width, height, threshold):
     boxes = list(filter(lambda conf: conf[2] > threshold, result[0][0]))
     boxes = sorted(boxes, key=lambda x: x[2])
 
@@ -172,7 +171,7 @@ def infer_on_stream(args, client):
         if status == 0:
             frame = show_inference_time(frame, end_time - start_time, frame_height)
             result = infer_network.get_output()
-            persons = detect_persons(result, frame_width, frame_height)
+            persons = detect_persons(result, frame_width, frame_height, prob_threshold)
             frame = draw_bounding_boxes(frame, persons)
 
             samples.append(len(persons))
