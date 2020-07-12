@@ -40,8 +40,7 @@ IPADDRESS = socket.gethostbyname(HOSTNAME)
 MQTT_HOST = IPADDRESS
 MQTT_PORT = 3002
 MQTT_KEEPALIVE_INTERVAL = 60
-DEBUG = True# False
-
+DEBUG = False
 
 def build_argparser():
     """
